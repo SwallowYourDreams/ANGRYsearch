@@ -1,45 +1,47 @@
 #!/bin/bash
+# Assists the user in settting up a cronjob to regularly execute the ANGRYsearch updater
 updater="/usr/share/angrysearch/angrysearch_update_database.py" # path to angrysearch updater script
+# If there is no /etc/cron.allow/deny files, create a cron.allow file and enter user to enable him to create cronjobs.
 if [ ! -f "/etc/cron.allow" ] && [ ! -f "/etc/cron.deny" ] ; then
 	sudo bash -c "echo $USER > /etc/cron.allow"
 fi
 
-function assistent {
+function userassistant {
 	while true ; do
 		# Intervall (Minuten / Stunden)
 		clear
 		while true; do
-			echo "In welchen Intervall soll aktualisiert werden?"
-			echo "[1] alle x Minuten"
-			echo "[2] alle x Stunden"
-			echo "[Strg+C] Abbruch"
+			echo "What intervall shall be used to update?"
+			echo "[1] Every x minutes"
+			echo "[2] Every x hours"
+			echo "[Strg+C] Cancel"
 			read input
 			case "$input" in
 				1)
 					i="m"
-					interval="Minuten"
+					interval="minutes"
 					break
 				;;
 				2)
 					i="h"
-					interval="Stunden"
+					interval="hours"
 					break
 				;;
 				*)
-					echo "Fehlerhafte Eingabe"
+					echo "Invalid input."
 				;;
 			esac
 		done
-		echo "Als Intervall wurden $interval ausgewählt."
+		echo "You have selected $interval as your interval."
 		
 		# Frequenz (Alle x Minuten)
 		clear
 		while true; do
-			echo "Wie oft soll aktualisiert werden? Alle ... $interval."
-			echo "[Strg+C] Abbruch"
+			echo "How often shall the update run? Every ... $interval."
+			echo "[Strg+C] Cancel"
 			read f
 			if [ "$f" -lt 0 ] ; then 
-				echo "Fehlerhafte Eingabe."
+				echo "Invalid input."
 			else
 				break
 			fi
@@ -47,9 +49,9 @@ function assistent {
 		
 		# Bestätigung
 		clear
-		echo "Angrysearch soll alle $f $interval aktualisiert werden. Einstellungen übernehmen? [j/n]"
+		echo "ANGRYsearch will update every $f $interval. Do you wish to apply these settings? [y/n]"
 		read input
-		if [ "$input" == "j" ] ; then
+		if [ "$input" == "y" ] ; then
 			# Eintrag
 			case "$i" in
 				m)
@@ -59,46 +61,49 @@ function assistent {
 					i="* */$f"
 				;;
 				*)
-					echo "Es ist ein unbekannter Fehler aufgetreten."
+					echo "Unknown error."
 					exit 1
 				;;
 			esac
 			echo "$i * * * $updater" | crontab -
 			if [ "$?" == "0" ] ; then
-				echo "Einstellungen erfolgreich übernommen!"
+				echo "Auto-update settings applied successfully!"
 			else
-				echo "Es ist ein Fehler aufgetreten. Einstellungen konnten nicht übernommen werden."
+				echo "There was an error. Your settings could not be applied."
 			fi
+			break
+		else
+			echo "Cancelled."
 			break
 		fi
 	done
 }
 
 
-echo "Angrysearch aktualisiert seine Indizes nicht automatisch. Dieses Skript hilft dir dabei, eine automatische Aktualisierung einzurichten."
+echo "ANGRYsearch does not update its index automatically. This script will assist you in setting up an automatic update."
 
 while true ; do
-	echo "Wähle eine Option aus, indem du die Zahl in eckigen Klammern eingibst."
-	echo "[1] Assistenten zur Einrichtung verwenden (Anfänger)"
-	echo "[2] /etc/crontab manuell editieren (Fortgeschrittene)"
-	echo "[Strg+C] Abbruch"
+	echo "Choose an option by entering the number inside the square brackets."
+	echo "[1]Use assistant (beginners)"
+	echo "[2] manually register new cronjob (advanced users)"
+	echo "[Strg+C] Cancel"
 	read input
 	case "$input" in
 		1)
-			assistent
+			userassistant
 			break
 		;;
 		2)
 			echo "-----------"
-			echo "Kopiere dir den folgenden Pfad zum angrysearch updater, um ihn in crontab einzutragen:"
+			echo "Please copy the following path to the ANGRYsearch updater so that you can paste it into crontab:"
 			echo "$updater"
-			echo "Bestätige mit Enter, wenn du bereit bist."
+			echo "Press enter when you are ready."
 			read x
 			crontab -e
 			break
 		;;
 		*)
-			echo "Fehlerhafte Eingabe"
+			echo "Invalid input"
 		;;
 	esac
 done
