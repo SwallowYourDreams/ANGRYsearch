@@ -602,6 +602,11 @@ class AngryTableView(Qw.QTableView):
 
         act_copy_path = right_click_menu.addAction('Copy Path')
         act_copy_path.triggered.connect(self.parent().parent().right_clk_copy)
+        
+        right_click_menu.addSeparator()
+        
+        act_copy_path = right_click_menu.addAction('Send as E-Mail attachment')
+        act_copy_path.triggered.connect(self.parent().parent().right_clk_attachment)
 
         right_click_menu.exec_(event.globalPos())
 
@@ -1260,6 +1265,11 @@ class AngryMainWindow(Qw.QMainWindow):
         path = self.model.itemFromIndex(qmodel_index.row(), 0)._fullpath
         clipboard = Qw.QApplication.clipboard()
         clipboard.setText(path)
+        
+    def right_clk_attachment(self):
+        qmodel_index = self.center.table.currentIndex() # gets reference to currently selected list item
+        path = self.model.itemFromIndex(qmodel_index.row(), 0)._fullpath # retrieves the absolute path of the selected item
+        os.system("thunderbird -compose " + path)
 
     # WHEN A ROW IS SELECTED IN TABLE VIEW, BY MOUSE OR KEYBOARD
     # MIMETYPE IS GET IN A THREAD TO KEEP THE INTERFACE RESPONSIVE
