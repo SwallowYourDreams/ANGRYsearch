@@ -1269,7 +1269,7 @@ class AngryMainWindow(Qw.QMainWindow):
     def right_clk_attachment(self):
         qmodel_index = self.center.table.currentIndex() # gets reference to currently selected list item
         path = self.model.itemFromIndex(qmodel_index.row(), 0)._fullpath # retrieves the absolute path of the selected item
-        os.system("thunderbird -compose " + path)
+        os.system("thunderbird -compose '" + path + "'")
 
     # WHEN A ROW IS SELECTED IN TABLE VIEW, BY MOUSE OR KEYBOARD
     # MIMETYPE IS GET IN A THREAD TO KEEP THE INTERFACE RESPONSIVE
