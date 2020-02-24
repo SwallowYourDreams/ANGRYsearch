@@ -11,3 +11,5 @@ install -Dm644 qdarkstylesheet.qss "/usr/share/angrysearch/qdarkstylesheet.qss"
 ln -sf "/usr/share/angrysearch/angrysearch.py" "/usr/bin/angrysearch"
 ln -sf "/usr/share/angrysearch/angrysearch.svg" "/usr/share/pixmaps"
 ln -sf "/usr/share/angrysearch/angrysearch.desktop" "/usr/share/applications"
+
+angrysearch-autoupdate.sh
