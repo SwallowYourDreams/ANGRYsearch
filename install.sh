@@ -12,4 +12,5 @@ ln -sf "/usr/share/angrysearch/angrysearch.py" "/usr/bin/angrysearch"
 ln -sf "/usr/share/angrysearch/angrysearch.svg" "/usr/share/pixmaps"
 ln -sf "/usr/share/angrysearch/angrysearch.desktop" "/usr/share/applications"
 
-angrysearch-autoupdate.sh
+chmod +x ./angrysearch-autoupdate.sh
+./angrysearch-autoupdate.sh
