@@ -1,19 +1,21 @@
 #!/bin/bash
-# Assists the user in settting up a cronjob to regularly execute the ANGRYsearch updater
+# This script assists the user in settting up a cronjob to regularly execute the ANGRYsearch updater
 updater="/usr/share/angrysearch/angrysearch_update_database.py" # path to angrysearch updater script
+
+# OBSOLETE?
 # If there is no /etc/cron.allow/deny files, create a cron.allow file and enter user to enable him to create cronjobs.
-if [ ! -f "/etc/cron.allow" ] && [ ! -f "/etc/cron.deny" ] ; then
-	sudo bash -c "echo $USER > /etc/cron.allow"
-fi
+#if [ ! -f "/etc/cron.allow" ] ; then
+#	sudo bash -c "echo $USER > /etc/cron.allow"
+#fi
 
 function userassistant {
 	while true ; do
-		# Intervall (Minuten / Stunden)
+		# Determine interval (minutes or hours)
 		clear
 		while true; do
-			echo "What intervall shall be used to update?"
-			echo "[1] Every x minutes"
-			echo "[2] Every x hours"
+			echo "Which interval do you wish to use for index updates?"
+			echo "[1] minutes"
+			echo "[2] hours"
 			echo "[Strg+C] Cancel"
 			read input
 			case "$input" in
@@ -34,7 +36,7 @@ function userassistant {
 		done
 		echo "You have selected $interval as your interval."
 		
-		# Frequenz (Alle x Minuten)
+		# Determine frequency (update every x seconds / hours)
 		clear
 		while true; do
 			echo "How often shall the update run? Every ... $interval."
@@ -47,7 +49,7 @@ function userassistant {
 			fi
 		done
 		
-		# Bestätigung
+		# Confirm input
 		clear
 		echo "ANGRYsearch will update every $f $interval. Do you wish to apply these settings? [y/n]"
 		read input
@@ -65,12 +67,13 @@ function userassistant {
 					exit 1
 				;;
 			esac
-			echo "$i * * * $updater" | crontab -
+			echo "$i * * * $updater" | sudo crontab -
 			if [ "$?" == "0" ] ; then
 				echo "Auto-update settings applied successfully!"
 			else
 				echo "There was an error. Your settings could not be applied."
 			fi
+			exit
 			break
 		else
 			echo "Cancelled."
@@ -99,7 +102,7 @@ while true ; do
 			echo "$updater"
 			echo "Press enter when you are ready."
 			read x
-			crontab -e
+			sudo crontab -e
 			break
 		;;
 		*)
