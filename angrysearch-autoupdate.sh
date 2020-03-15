@@ -2,17 +2,35 @@
 # This script assists the user in settting up a cronjob to regularly execute the ANGRYsearch updater
 updater="/usr/share/angrysearch/angrysearch_update_database.py" # path to angrysearch updater script
 
-# OBSOLETE?
-# If there is no /etc/cron.allow/deny files, create a cron.allow file and enter user to enable him to create cronjobs.
-cronallow="/etc/cron.allow"
+# Setting up privilege to edit crontab for current user
+cronallowfile="/etc/cron.allow"
 user=$USER
-if [ ! -f "$cronallow" ] ; then
-	sudo bash -c "echo $user > /etc/cron.allow"
-else
-	cat "$cronallow" | grep '"$user"'
-	if [ "$?" == "0"  ] ; then
-		sudo bash -c "echo $user >> /etc/cron.allow"
+fail=false
+# If there is no /etc/cron.allow file, create it and enter user to enable him to create cronjobs.
+if [ ! -f "$cronallowfile" ] ; then
+	echo "$cronallowfile does not exist yet, creating it and adding user \"$user\"."
+	sudo bash -c "printf 'root\n$user\n' > $cronallowfile"
+	if [ "$?" -neq 0 ] ; then
+		fail=true
 	fi
+# Else, check if user is already in /etc/cron.allow
+else
+	# If user is not, add him to /etc/cron.allow
+	if ! cat "$cronallowfile" | grep "$user"; then
+		echo "User \"$user\" is not yet allowed to access cronjobs, adding to $cronallowfile."
+		sudo bash -c "echo $user >> $cronallowfile"
+		if [ "$?" -neq 0 ] ; then
+			fail=true
+		fi
+	fi
+fi
+
+# If cron.allow could not be created or modified, exit with error.
+if [ "$fail" == "true" ] ; then
+	echo "Failed to write to $cronallowfile. This file is required for the script to run properly."
+	exit 1
+else
+	clear
 fi
 
 function userassistant {
@@ -74,8 +92,7 @@ function userassistant {
 					exit 1
 				;;
 			esac
-			echo "$i * * * $updater" | crontab -
-			if [ "$?" == "0" ] ; then
+			if echo "$i * * * $updater" | crontab - ; then
 				echo "Auto-update settings applied successfully!"
 			else
 				echo "There was an error. Your settings could not be applied."
@@ -109,7 +126,7 @@ while true ; do
 			echo "$updater"
 			echo "Press enter when you are ready."
 			read x
-			sudo crontab -e
+			crontab -e
 			break
 		;;
 		*)
