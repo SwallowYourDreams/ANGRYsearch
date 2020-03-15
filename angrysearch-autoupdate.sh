@@ -9,8 +9,7 @@ fail=false
 # If there is no /etc/cron.allow file, create it and enter user to enable him to create cronjobs.
 if [ ! -f "$cronallowfile" ] ; then
 	echo "$cronallowfile does not exist yet, creating it and adding user \"$user\"."
-	sudo bash -c "printf 'root\n$user\n' > $cronallowfile"
-	if [ "$?" -neq 0 ] ; then
+	if ! sudo bash -c "printf 'root\n$user\n' > $cronallowfile" ; then
 		fail=true
 	fi
 # Else, check if user is already in /etc/cron.allow
@@ -18,8 +17,7 @@ else
 	# If user is not, add him to /etc/cron.allow
 	if ! cat "$cronallowfile" | grep "$user"; then
 		echo "User \"$user\" is not yet allowed to access cronjobs, adding to $cronallowfile."
-		sudo bash -c "echo $user >> $cronallowfile"
-		if [ "$?" -neq 0 ] ; then
+		if ! sudo bash -c "echo $user >> $cronallowfile" ; then
 			fail=true
 		fi
 	fi
