@@ -4,9 +4,16 @@ updater="/usr/share/angrysearch/angrysearch_update_database.py" # path to angrys
 
 # OBSOLETE?
 # If there is no /etc/cron.allow/deny files, create a cron.allow file and enter user to enable him to create cronjobs.
-#if [ ! -f "/etc/cron.allow" ] ; then
-#	sudo bash -c "echo $USER > /etc/cron.allow"
-#fi
+cronallow="/etc/cron.allow"
+user=$USER
+if [ ! -f "$cronallow" ] ; then
+	sudo bash -c "echo $user > /etc/cron.allow"
+else
+	cat "$cronallow" | grep '"$user"'
+	if [ "$?" == "0"  ] ; then
+		sudo bash -c "echo $user >> /etc/cron.allow"
+	fi
+fi
 
 function userassistant {
 	while true ; do
@@ -16,7 +23,7 @@ function userassistant {
 			echo "Which interval do you wish to use for index updates?"
 			echo "[1] minutes"
 			echo "[2] hours"
-			echo "[Strg+C] Cancel"
+			echo "[Ctrl+C] Cancel"
 			read input
 			case "$input" in
 				1)
@@ -40,7 +47,7 @@ function userassistant {
 		clear
 		while true; do
 			echo "How often shall the update run? Every ... $interval."
-			echo "[Strg+C] Cancel"
+			echo "[Ctrl+C] Cancel"
 			read f
 			if [ "$f" -lt 0 ] ; then 
 				echo "Invalid input."
@@ -67,7 +74,7 @@ function userassistant {
 					exit 1
 				;;
 			esac
-			echo "$i * * * $updater" | sudo crontab -
+			echo "$i * * * $updater" | crontab -
 			if [ "$?" == "0" ] ; then
 				echo "Auto-update settings applied successfully!"
 			else
@@ -87,9 +94,9 @@ echo "ANGRYsearch does not update its index automatically. This script will assi
 
 while true ; do
 	echo "Choose an option by entering the number inside the square brackets."
-	echo "[1]Use assistant (beginners)"
-	echo "[2] manually register new cronjob (advanced users)"
-	echo "[Strg+C] Cancel"
+	echo "[1] Use assistant (beginners)"
+	echo "[2] Manually register new cronjob (advanced users)"
+	echo "[Ctrl+C] Cancel"
 	read input
 	case "$input" in
 		1)
