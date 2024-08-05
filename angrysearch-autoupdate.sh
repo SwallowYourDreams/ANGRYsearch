@@ -1,23 +1,23 @@
 #!/bin/bash
 # This script assists the user in settting up a cronjob to regularly execute the ANGRYsearch updater
 updater="/usr/share/angrysearch/angrysearch_update_database.py" # path to angrysearch updater script
+CURRENT_USER=$(who am i | awk '{print $1}')
 
 # Setting up privilege to edit crontab for current user
 cronallowfile="/etc/cron.allow"
-user=$USER
 fail=false
 # If there is no /etc/cron.allow file, create it and enter user to enable him to create cronjobs.
 if [ ! -f "$cronallowfile" ] ; then
-	echo "$cronallowfile does not exist yet, creating it and adding user \"$user\"."
-	if ! sudo bash -c "printf 'root\n$user\n' > $cronallowfile" ; then
+	echo "$cronallowfile does not exist yet, creating it and adding user \"$CURRENT_USER\"."
+	if ! sudo bash -c "printf 'root\n$CURRENT_USER\n' > $cronallowfile" ; then
 		fail=true
 	fi
 # Else, check if user is already in /etc/cron.allow
 else
 	# If user is not, add him to /etc/cron.allow
-	if ! cat "$cronallowfile" | grep "$user"; then
-		echo "User \"$user\" is not yet allowed to access cronjobs, adding to $cronallowfile."
-		if ! sudo bash -c "echo $user >> $cronallowfile" ; then
+	if ! cat "$cronallowfile" | grep "$CURRENT_USER"; then
+		echo "User \"$CURRENT_USER\" is not yet allowed to access cronjobs, adding to $cronallowfile."
+		if ! sudo bash -c "echo $CURRENT_USER >> $cronallowfile" ; then
 			fail=true
 		fi
 	fi
