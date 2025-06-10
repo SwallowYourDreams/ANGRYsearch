@@ -1,7 +1,10 @@
 #!/bin/bash
 # This script assists the user in settting up a cronjob to regularly execute the ANGRYsearch updater
 updater="/usr/share/angrysearch/angrysearch_update_database.py" # path to angrysearch updater script
-CURRENT_USER=$(who am i | awk '{print $1}')
+CURRENT_USER=$(whoami)
+if [ "$CURRENT_USER" == "root" ] ; then
+	CURRENT_USER=$SUDO_USER
+fi
 
 # Setting up privilege to edit crontab for current user
 cronallowfile="/etc/cron.allow"
@@ -103,7 +106,6 @@ function userassistant {
 		fi
 	done
 }
-
 
 echo "ANGRYsearch does not update its index automatically. This script will assist you in setting up an automatic update."
 
